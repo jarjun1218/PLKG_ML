@@ -5,7 +5,7 @@ import torch
 class encoder(nn.Module):
     def __init__(self):
         super(encoder,self).__init__()
-        self.fnn = nn.Sequential(
+        self.model = nn.Sequential(
             nn.Linear(51,32),
             nn.LayerNorm(32),
             nn.ReLU(),
@@ -28,5 +28,5 @@ class encoder(nn.Module):
             module.bias.data.zero_()
 
     def forward(self, x):
-        output = self.fnn(x)
+        output = self.model(x)
         return output

@@ -25,7 +25,7 @@ def training(model,data_loader,folder,checkpoint = 100):
     count = 0
     for n_iter in tqdm(range(epoch), desc = "training"):
         train_loss = 0.0
-        
+        batch_idx_count = 0
         for batch_idx, (data, target) in enumerate(data_loader):
             data, target = Variable(data), Variable(target)
             data, target = data.cuda(), target.cuda()
@@ -41,9 +41,9 @@ def training(model,data_loader,folder,checkpoint = 100):
             optimizer.step()
 
             train_loss += loss.item()
-        
+            batch_idx_count +=1
         n_iters.append(n_iter)
-        losses.append(train_loss)
+        losses.append(train_loss/batch_idx_count)
         count += 1
         if count % checkpoint == 0:
             file_name = folder + "/model"+str(count)+".pth"
@@ -54,27 +54,17 @@ def training(model,data_loader,folder,checkpoint = 100):
         
 
 def testing(model, data_loader):
-    Model = model
+    Model = model()
     Model = Model.cuda()
-    Model.eval()
     total_loss = 0
     MSE_loss = nn.MSELoss(reduction="mean")
+    batch_idx_count = 0
     for data,target in data_loader:
         data, target = Variable(data), Variable(target)
         data, target = data.cuda(), target.cuda()
         output = model(data)
         loss = MSE_loss(output, target)
         total_loss += loss.item()
+        batch_idx_count += 1
 
-    return total_loss
-
-def original(data_loader):
-    total_loss = 0
-    MSE_loss = nn.MSELoss(reduction="mean")
-    for data,target in data_loader:
-        data, target = Variable(data), Variable(target)
-        data, target = data.cuda(), target.cuda()
-        loss = MSE_loss(data, target)
-        total_loss += loss.item()
-
-    return total_loss
+    return total_loss/batch_idx_count

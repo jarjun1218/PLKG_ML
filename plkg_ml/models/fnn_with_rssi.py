@@ -5,7 +5,7 @@ import torch
 class fnn_rssi(nn.Module):
     def __init__(self):
         super(fnn_rssi,self).__init__()
-        self.fnn = nn.Sequential(
+        self.model = nn.Sequential(
             nn.Linear(52,128),
             nn.LayerNorm(128),
             nn.ReLU(),
@@ -28,5 +28,5 @@ class fnn_rssi(nn.Module):
             module.bias.data.zero_()
 
     def forward(self, x):
-        output = self.fnn(x)
+        output = self.model(x)
         return output
