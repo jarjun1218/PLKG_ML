@@ -62,7 +62,7 @@ class cs_net(nn.Module, LSTM_model_init):
                                    nn.LayerNorm([1,1,102]),
                                    nn.ReLU())#[1,1,51]
         
-        self.csi_conv2 = nn.Sequential(nn.Conv2d(1,4,kernel_size=(2,3),padding=(0,1)),
+        self.csi_conv2 = nn.Sequential(nn.Conv2d(1,4,kernel_size=(3,5),padding=(0,2)),
                                    nn.LayerNorm([4,1,102]),
                                    nn.ReLU())#[4,1,51]
         
@@ -81,15 +81,15 @@ class cs_net(nn.Module, LSTM_model_init):
                                  nn.Sigmoid())
     
     def forward(self, x):
-        speed = torch.unsqueeze(x[:,:,:,103],2)
-        speed = torch.permute(speed,(0,1,3,2))
+        # speed = torch.unsqueeze(x[:,:,:,103],2)
+        # speed = torch.permute(speed,(0,1,3,2))
         # print(speed.size())
         # speed_out = self.speed_conv1(speed)
         # speed_out = torch.permute(speed_out,(0,3,2,1))
-        speed_out = self.speed_fnn(speed)
+        # speed_out = self.speed_fnn(speed)
         # print(speed_out.size())
 
-        pos = x[:,:,0,104:116]
+        pos = x[:,:,1,104:116]
         # print(pos.size())
         pos = torch.unsqueeze(pos,1)
         # print(pos.size())
@@ -146,7 +146,7 @@ class cs_net(nn.Module, LSTM_model_init):
 
     
 if __name__ == "__main__":
-    x = torch.rand(32,1,2,116)
+    x = torch.rand(32,1,3,116)
     # LSTM_model_init()
     test = cs_net()
     hold = test(x)
