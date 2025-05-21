@@ -8,7 +8,7 @@ import numpy as np
 import os
 import greycode_quantization as quan
 
-def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, learning_rate=0.001):
+def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, learning_rate=0.001, quantization=False):
     try:
         os.mkdir(folder)
     except FileExistsError:
@@ -46,8 +46,11 @@ def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, 
 
             output = Model(data)
 
-            # loss = MSE_loss(output, target) #loss function
-            loss = BCE_loss(output, target)
+            if quantization:
+                loss = BCE_loss(output, target)
+                # loss = BCE_loss(output, target) #loss function for quantized data
+            else:
+                loss = MSE_loss(output, target) #loss function for normal data
 
             loss.backward() #gradient descent
 
