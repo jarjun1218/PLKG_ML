@@ -10,10 +10,15 @@ class cr_net(nn.Module):
                                    nn.LayerNorm([51,1,1]),
                                    nn.ReLU())
 
-        self.csi_conv1 = nn.Sequential(nn.Conv2d(1,4,kernel_size=(3,3),padding=(0,1)),
+        self.csi_conv1 = nn.Sequential(nn.Conv2d(1,1,kernel_size=(2,3),padding=(0,1)),
+                                   nn.LayerNorm([1,1,51]),
+                                   nn.ReLU())#[1,1,51]
+        
+        self.csi_conv2 = nn.Sequential(nn.Conv2d(1,4,kernel_size=(2,3),padding=(0,1)),
                                    nn.LayerNorm([4,1,51]),
                                    nn.ReLU())#[4,1,51]
-        self.csi_conv2 = nn.Sequential(nn.Conv2d(4,1,kernel_size=(1,1)),
+        
+        self.csi_conv3 = nn.Sequential(nn.Conv2d(4,1,kernel_size=(1,1)),
                                    nn.LayerNorm([1,1,51]),
                                    nn.ReLU())#[1,1,51]
         self.csi_fnn = nn.Sequential(nn.Linear(51,32),
@@ -32,11 +37,14 @@ class cr_net(nn.Module):
         csi = x[:,:,:,1:]
         rssi_out = self.rssi_conv1(rssi)
         rssi_out = torch.permute(rssi_out,(0,3,2,1))
-        modify_ = torch.cat((csi,rssi_out),2)
-        out1 = self.csi_conv1(modify_)
-        out2 = self.csi_conv2(out1)
-        out2 = torch.squeeze(out2)
-        out = self.csi_fnn(out2)
+        
+        csi_ = self.csi_conv1(csi)
+        
+        modify_ = torch.cat((csi_,rssi_out),2)
+        out2 = self.csi_conv2(modify_)
+        out3 = self.csi_conv3(out2)
+        out4 = torch.squeeze(out3)
+        out = self.csi_fnn(out4)
 
         return out
 

@@ -6,17 +6,20 @@ from tqdm import tqdm
 import torch
 import numpy as np
 import os
+import greycode_quantization as quan
 
-def training(model,data_loader,folder,checkpoint = 100):
+def training(model,data_loader,folder,checkpoint = 100,epoch = 500):
     try:
         os.mkdir(folder)
     except FileExistsError:
         pass
-    epoch = 500
+    epoch = epoch
     Model = model()
     Model.cuda()
     Model.float()
-    optimizer = optim.Adam(Model.parameters(), lr=1e-3, betas=(0.9, 0.999), eps=1e-8)
+    optimizer = optim.Adam(Model.parameters(), lr=1e-3, betas=(0.9, 0.999), eps=1e-8) #optimizer
+    BCE_loss = nn.BCELoss(reduction="mean")
+    BCE_loss.cuda()
     MSE_loss = nn.MSELoss(reduction="mean")
     MSE_loss.cuda()
     Model.train()
@@ -27,20 +30,20 @@ def training(model,data_loader,folder,checkpoint = 100):
         train_loss = 0.0
         batch_idx_count = 0
         for batch_idx, (data, target) in enumerate(data_loader):
-            data, target = Variable(data), Variable(target)
-            data, target = data.cuda(), target.cuda()
+            data, target = Variable(data), Variable(target) #
+            data, target = data.cuda(), target.cuda() #
 
-            optimizer.zero_grad()
+            optimizer.zero_grad() #
 
             output = Model(data)
 
-            loss = MSE_loss(output, target)
+            loss = MSE_loss(output, target) #loss function
 
-            loss.backward()
+            loss.backward() #gradient descent
 
-            optimizer.step()
+            optimizer.step() #to next step
 
-            train_loss += loss.item()
+            train_loss += loss.item() #loss value
             batch_idx_count +=1
         n_iters.append(n_iter)
         losses.append(train_loss/batch_idx_count)
@@ -54,7 +57,7 @@ def training(model,data_loader,folder,checkpoint = 100):
         
 
 def testing(model, data_loader):
-    Model = model()
+    Model = model
     Model = Model.cuda()
     total_loss = 0
     MSE_loss = nn.MSELoss(reduction="mean")
