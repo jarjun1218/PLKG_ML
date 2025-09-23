@@ -31,7 +31,7 @@ model_data_quan_dict = [
 
 model_data_cnn_quan_dict = [
     [cnn_basic_quan.cnn_basic,csi_cnn_quan_dataset,"cnn_basic_quan"],
-    [cnn_speed_quan_with_LSTM.cs_net,csi_cnn_quan_lstm_dataset,"cnn_quan_with_LSTM"],
+    # [cnn_speed_quan_with_LSTM.cs_net,csi_cnn_quan_lstm_dataset,"cnn_quan_with_LSTM"],
     # [cnn_speed_quan.cs_net,csi_cnn_speed_quan_dataset,"cnn_speed_quan"]
 ]
 

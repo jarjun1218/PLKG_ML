@@ -16,13 +16,13 @@ def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, 
     epoch = epoch
     lr = learning_rate
     Model = model()
-    Model.cuda()
+    # Model.cuda()
     Model.float()
     optimizer = optim.Adam(Model.parameters(), lr, betas=(0.9, 0.999), eps=1e-8) #optimizer
     BCE_loss = nn.BCELoss(reduction="mean")
-    BCE_loss.cuda()
+    # BCE_loss.cuda()
     MSE_loss = nn.MSELoss(reduction="mean")
-    MSE_loss.cuda()
+    # MSE_loss.cuda()
     # state_dict = Model.state_dict()
     # for key, param in state_dict.items():
     #     with torch.no_grad():
@@ -40,7 +40,7 @@ def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, 
         batch_idx_count = 0
         for batch_idx, (data, target) in enumerate(data_loader):
             data, target = Variable(data), Variable(target) #
-            data, target = data.cuda(), target.cuda() #
+            # data, target = data.cuda(), target.cuda() #
 
             optimizer.zero_grad() #
 
@@ -66,7 +66,7 @@ def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, 
             with torch.no_grad():
                 for batch_idx, (data, target) in enumerate(val_loader):
                     data, target = Variable(data), Variable(target)
-                    data, target = data.cuda(), target.cuda()
+                    # data, target = data.cuda(), target.cuda()
                     output = Model(data)
                     loss = BCE_loss(output, target)
                     val_loss += loss.item()
@@ -79,7 +79,7 @@ def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, 
         if count % checkpoint == 0:
             file_name = folder + "/model"+str(count)+".pth"
             torch.save(Model,file_name)
-    torch.save(Model,folder + "/model_final.pth")
+    torch.save(Model,folder + "/model_final_test.pth")
 
     np.save(folder +"/losses",np.array([n_iters,losses]))
     if val_loader is not None:
@@ -88,13 +88,13 @@ def training(model, data_loader, val_loader ,folder, checkpoint=100, epoch=500, 
 
 def testing(model, data_loader):
     Model = model
-    Model = Model.cuda()
+    # Model = Model.cuda()
     total_loss = 0
     MSE_loss = nn.MSELoss(reduction="mean")
     batch_idx_count = 0
     for data,target in data_loader:
         data, target = Variable(data), Variable(target)
-        data, target = data.cuda(), target.cuda()
+        # data, target = data.cuda(), target.cuda()
         output = model(data)
         loss = MSE_loss(output, target)
         total_loss += loss.item()
