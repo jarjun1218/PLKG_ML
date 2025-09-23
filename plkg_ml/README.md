@@ -126,7 +126,7 @@ def training(model, data_loader, val_loader, folder,
         checkpoint: 檢查點儲存間隔
         epoch: 訓練世代數
         learning_rate: 學習率
-        quantization: 是否使用量化損失
+        quantization: 是否使用量化資料集
     """
 ```
 
@@ -293,7 +293,7 @@ print(f"Original KDR: {original_kdr:.4f}, Mapped KDR: {map_kdr:.4f}")
 
 ### 2. 數據準備
 
-#### 數據格式要求
+#### 數據處理格式（先略過，之後會補上相關程式碼）
 ```python
 # 輸入數據格式: [2, N, features]
 # data[0, :, :] - UAV 數據
@@ -310,13 +310,10 @@ def preprocess_data(raw_data):
 
 #### 數據載入範例
 ```python
-# 載入不同信噪比的數據集
+# 載入數據集
 datasets = {
-    "0db": np.load("test_set_4/normalized_speed_training_set_0db.npy"),
-    "10db": np.load("test_set_4/normalized_speed_training_set_10db.npy"),
-    "20db": np.load("test_set_4/normalized_speed_training_set_20db.npy"),
-    "30db": np.load("test_set_4/normalized_speed_training_set_30db.npy"),
-    "all": np.load("test_set_4/normalized_speed_training_set_all.npy")
+    "train": np.load("normalized_training_set.npy"),
+    "test": np.load("normalized_testing_set.npy")
 }
 ```
 
@@ -493,35 +490,6 @@ loss = bce_loss(sigmoid(uav_output), sigmoid(iot_output))
 - **計算複雜度**: FLOPs 計算
 - **記憶體使用**: 訓練和推理時的記憶體需求
 
-## 實驗結果
-
-### 1. 模型性能比較
-
-| 模型 | KDR (Original) | KDR (Mapped) | 訓練時間 | 參數數量 |
-|------|----------------|--------------|----------|----------|
-| CNN Basic | 0.085 | 0.032 | 2h | 1.2M |
-| CNN + LSTM | 0.067 | 0.021 | 4h | 2.8M |
-| CNN + Speed + LSTM | 0.045 | 0.015 | 5h | 3.2M |
-| CNN + Speed + LSTM + Quan | 0.038 | 0.012 | 6h | 3.2M |
-
-### 2. 不同信噪比下的性能
-
-| SNR (dB) | KDR | 金鑰生成速率 |
-|----------|-----|-------------|
-| 0 | 0.156 | 75% |
-| 10 | 0.089 | 85% |
-| 20 | 0.045 | 92% |
-| 30 | 0.023 | 96% |
-| 40+ | 0.012 | 98% |
-
-### 3. 量化參數影響
-
-| Nbits | Guard | KDR | 金鑰長度 |
-|-------|-------|-----|----------|
-| 2 | 1 | 0.089 | 128 bits |
-| 4 | 2 | 0.045 | 256 bits |
-| 6 | 3 | 0.034 | 384 bits |
-| 8 | 4 | 0.028 | 512 bits |
 
 ## 範例程式
 
@@ -870,22 +838,8 @@ trainingset = np.load("normalized_training_set.npy")
 validate_dataset_format(trainingset, (2, None, 110))  # 110 features expected
 ```
 
----
 
-## 授權
-
-本專案採用 MIT 授權條款 - 詳見 [LICENSE](LICENSE) 文件
-
-## 聯絡資訊
-
-- **作者**: jarjun1218
-- **專案**: [ssh_ml_plkg](https://github.com/jarjun1218/ssh_ml_plkg)
-- **問題回報**: [GitHub Issues](https://github.com/jarjun1218/ssh_ml_plkg/issues)
-
-## 致謝
-
-感謝所有為此專案貢獻的研究人員和開發者。本專案基於物理層安全的相關研究成果，特別感謝在 CSI 數據處理和深度學習模型設計方面的貢獻。
 
 ---
 
-*最後更新: 2025年9月23日*
+*Latest Update*: *2025/09/23*
