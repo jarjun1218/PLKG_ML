@@ -50,16 +50,20 @@ graph TB
 
 ```
 plkg_ml/
-├── models/                          # 神經網路模型定義
+├── data_processing/             # 數據預處理和分析
+│   ├── data_preprocessing.ipynb # 主要數據預處理筆記本
+│   ├── data_preprocessing copy.ipynb # 數據預處理副本
+│   └── raw.ipynb               # 原始數據分析
+├── models/                     # 神經網路模型定義
 │   ├── __init__.py
-│   ├── cnn_basic.py                # 基礎 CNN 模型
-│   ├── cnn_basic_quan.py           # 量化 CNN 模型
-│   ├── cnn_with_LSTM.py            # CNN + LSTM 混合模型
-│   ├── cnn_speed.py                # 包含速度資訊的 CNN
+│   ├── cnn_basic.py            # 基礎 CNN 模型
+│   ├── cnn_basic_quan.py       # 量化 CNN 模型
+│   ├── cnn_with_LSTM.py        # CNN + LSTM 混合模型
+│   ├── cnn_speed.py            # 包含速度資訊的 CNN
 │   ├── cnn_speed_quan_with_LSTM.py # 量化 CNN + LSTM + 速度
-│   ├── encoder_*.py                # 自編碼器模型
-│   ├── fnn_*.py                    # 前饋神經網路
-│   └── crnet.py, crsnet.py         # 其他網路架構
+│   ├── encoder_*.py            # 自編碼器模型
+│   ├── fnn_*.py                # 前饋神經網路
+│   └── crnet.py, crsnet.py     # 其他網路架構
 ├── test_set/                       # 測試數據集
 │   ├── normalized_training_set.npy
 │   ├── normalized_testing_set.npy
@@ -90,6 +94,45 @@ plkg_ml/
 ```
 
 ## 核心模組
+
+### 0. 數據預處理模組 (data_processing/)
+
+提供完整的 CSI 數據預處理和分析工具：
+
+#### 主要功能
+- **原始數據提取**: 從 UAV 和 GCS 的原始 CSI 數據文件中提取結構化數據
+- **IMU 數據處理**: 處理慣性測量單元數據，包含方向、角速度、線性加速度
+- **位置數據融合**: 整合 ROS 位置數據與 CSI 數據
+- **數據同步**: 基於時間戳同步多源數據
+- **數據視覺化**: 提供豐富的圖表分析工具
+
+#### 主要筆記本
+- **`data_preprocessing.ipynb`**: 主要數據預處理流程
+  - CSI 數據提取和清理
+  - 多設備數據同步
+  - 特徵工程和正規化
+- **`raw.ipynb`**: 原始數據探索性分析
+  - 數據品質檢查
+  - 統計特性分析
+  - 異常值檢測
+
+#### 數據處理流程
+```python
+# UAV CSI 數據提取
+def uav_csi_data_extract(data):
+    """從 UAV 原始數據中提取 CSI 特徵"""
+    # 處理時間戳、RSSI、CSI 複數數據
+    
+# GCS CSI 數據提取  
+def gcs_csi_data_extract(data):
+    """從 GCS 原始數據中提取 CSI 特徵"""
+    # 處理序列號、CSI 特徵向量
+
+# IMU 數據處理
+def imu_data_extract(data):
+    """提取 IMU 感測器數據"""
+    # 四元數、歐拉角、加速度數據
+```
 
 ### 1. 數據集模組 (dataset.py)
 
@@ -259,7 +302,47 @@ model_data_cnn_quan_dict = [
 
 ## 使用指南
 
-### 1. 快速開始
+### 1. 數據預處理
+
+#### 原始數據處理
+```python
+# 在 data_processing/data_preprocessing.ipynb 中
+
+# 設定數據路徑
+dir_in = "CSI_data/processed_with_ros/UAV/*.txt"      # UAV CSI 數據
+dir_out = "CSI_data/processed_with_ros/GCS/*.txt"     # GCS CSI 數據  
+dir_imu = "CSI_data/processed_with_ros/ROS/IMU/*.json" # IMU 數據
+dir_pos = "CSI_data/processed_with_ros/ROS/POS/*.json" # 位置數據
+
+# 提取 CSI 數據
+uav_data = uav_csi_data_extract(raw_uav_data)
+gcs_data = gcs_csi_data_extract(raw_gcs_data)
+
+# 數據同步和融合
+synchronized_data = sync_multi_source_data(uav_data, gcs_data, imu_data, pos_data)
+
+# 正規化和特徵工程
+normalized_data = normalize_csi_features(synchronized_data)
+```
+
+#### 數據格式轉換
+```python
+# 轉換為模型所需的格式
+def convert_to_model_format(processed_data):
+    """
+    轉換為 [2, N, features] 格式
+    - 第一維: [UAV, GCS] 設備
+    - 第二維: 時間序列樣本
+    - 第三維: [RSSI, CSI_real, CSI_imag, pos_x, pos_y, pos_z, speed]
+    """
+    return formatted_data
+
+# 儲存預處理後的數據集
+np.save("normalized_training_set.npy", training_data)
+np.save("normalized_testing_set.npy", testing_data)
+```
+
+### 2. 快速開始
 
 #### 訓練基礎模型
 ```python
